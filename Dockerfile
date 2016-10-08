@@ -1,4 +1,6 @@
-FROM java:8
+FROM buildpack-deps:jessie-scm
+# OpenJDK not offically supported by Atlassian
+#FROM java:8
 
 # Setup useful environment variables
 ENV CONF_HOME     /var/local/atlassian/confluence
@@ -50,9 +52,16 @@ COPY mysql-connector-java-5.1.39-bin.jar /usr/local/atlassian/confluence/conflue
 # linked for testing
 #COPY web.xml /usr/local/atlassian/confluence/confluence/WEB-INF/web.xml
 
+# Oracle JDK
+COPY jdk-8u101-linux-x64.tar.gz jdk-8u101-linux-x64.tar.gz
+RUN tar xvfz jdk-8u101-linux-x64.tar.gz && mkdir /usr/lib/jvm && mv jdk1.8.0_101 /usr/lib/jvm/ && rm jdk-8u101-linux-x64.tar.gz
+ENV JAVA_HOME /usr/lib/jvm/jdk1.8.0_101
+ENV PATH "$PATH:$JAVA_HOME/bin"
+
 # SSL
 ADD server.xml /usr/local/atlassian/confluence/conf/server.tmpl
 # use sed to replace PASSPHRASE in server.tmpl with a randomly generated password then grep the password out when creating the keystore
+# keystore depends on java
 RUN sed "s|PASSPHRASE|$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;)|" /usr/local/atlassian/confluence/conf/server.tmpl > /usr/local/atlassian/confluence/conf/server.xml && $JAVA_HOME/bin/keytool -genkey -dname "cn=Author Name, ou=Container, o=UH, l=Honolulu, st=HI, c=US" -alias tomcat -keyalg RSA -storepass $(grep keystorePass /usr/local/atlassian/confluence/conf/server.xml | cut -d\" -f 2)
 
 #latex

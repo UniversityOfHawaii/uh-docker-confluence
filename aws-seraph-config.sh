@@ -1,15 +1,23 @@
-if [ -z "$1" ]; then
-	echo 'First parameter must be cas server'
-    exit
-fi
-MYCAS=$1
-
-if [ -z "$2" ]; then
-    MYIP=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
+#!/bin/bash
+if [ -f env.txt ]; then
+    source env.txt
+    if [ -f seraph-config.xml ]; then
+        echo "seraph-config.xml exists, not templating seraph-config.xml"
+        exit
+    fi
 else
-	MYIP=$2
-fi
+	if [ -z "$1" ]; then
+		echo 'First parameter must be cas server'
+    	exit
+	fi
+	MYCAS=$1
 
+	if [ -z "$2" ]; then
+    	MYIP=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
+	else
+		MYIP=$2
+	fi
+fi
 echo "s|@casBaseUrl@|https://$MYCAS/cas|g" > seraph-config.sed
 echo "s|\${originalurl}|https://$MYIP/dashboard.action|g" >> seraph-config.sed
 echo "s|<param-value>/login.action?\S*</param-value>|<param-value>https://$MYCAS/cas/login?service=https://$MYIP/dashboard.action</param-value>|g" >> seraph-config.sed

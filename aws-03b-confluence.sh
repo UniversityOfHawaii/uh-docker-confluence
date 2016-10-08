@@ -1,13 +1,18 @@
-DBNAME=$1
-DBUSER=$2
-DBUSERPW=$3
-CONBUILD=$4
-CONID=$5
-CONLIC=$6
-DBIP=$7
-MYIP=$8
+#!/bin/bash
+if [ -f env.txt ]; then
+    source env.txt
+else
+    DBNAME=$1
+    DBUSER=$2
+    DBUSERPW=$3
+    CONBUILD=$4
+    CONID=$5
+    CONLIC=$6
+    DBIP=$7
+    MYIP=$8
+fi
 
-if [ -z "$8" ]; then
+if [ -z "MYIP" ]; then
     MYIP=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
 fi
 
@@ -21,21 +26,21 @@ then
     ./aws-cas-web.sh cas-test.its.hawaii.edu $MYIP 
 else # RDS
 	# prod
-    echo "Extracting wiki-home this will take a few moments..."
+    echo "PRODUCTION Extracting wiki-home this will take a few moments..."
     # prod wiki-home
-    unzip wiki-home.zip
-    # test cas
-    ./aws-seraph-config.sh cas-test.its.hawaii.edu $MYIP
-    ./aws-cas-web.sh cas-test.its.hawaii.edu $MYIP 
+#    unzip wiki-home.zip
+    # test cas for production testing
+#    ./aws-seraph-config.sh cas-test.its.hawaii.edu $MYIP
+#    ./aws-cas-web.sh cas-test.its.hawaii.edu $MYIP 
     # prod cas
 #    ./aws-seraph-config.sh authn.hawaii.edu $MYIP
 #    ./aws-cas-web.sh authn.hawaii.edu $MYIP 
 
 	# test on RDS
-#    echo "Extracting wiki-home this will take a few moments..."
-#    tar xzf wiki-home.tar.gz
-#    ./aws-seraph-config.sh cas-test.its.hawaii.edu $MYIP
-#    ./aws-cas-web.sh cas-test.its.hawaii.edu $MYIP 
+    echo "TEST Extracting wiki-home this will take a few moments..."
+    tar xzf wiki-home.tar.gz
+    ./aws-seraph-config.sh cas-test.its.hawaii.edu $MYIP
+    ./aws-cas-web.sh cas-test.its.hawaii.edu $MYIP 
 
 fi
 
