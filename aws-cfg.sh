@@ -1,12 +1,15 @@
 #!/bin/bash
 CFGFILE=wiki-home/confluence.cfg.xml
 
-if [ -f env.txt ]; then
-    if [ -f $CFGFILE.bak ]; then
-        echo "$CFGFILE.bak exists, not templating $CFGFILE"
-        exit
-    fi
+# if in container though this is volume mounted to above
+# so changes in this file are persisted, unlike the other
+# configuration files there are aws-*.sh scripts for
+if [ -d /var/local/atlassian/confluence/ ];
+then
+    CFGFILE=/var/local/atlassian/confluence/confluence.cfg.xml
+fi
 
+if [ -f env.txt ]; then
     source env.txt
 else
     if [ -z "$1" ]; then
@@ -49,11 +52,7 @@ if [ -z "$DBIP" ]; then
     DBIP=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
 fi
 
-if [ ! -f $CFGFILE.bak ]; then
-    cp $CFGFILE $CFGFILE.bak
-fi
-
-echo "Configuring $CFGFILE with $DBNAME $DBUSER $DBUSERPW $MYIP"
+echo "Configuring $CFGFILE with $DBNAME $DBUSER $DBIP"
 
 xmlstarlet edit --inplace --update "/confluence-configuration/properties/property[@name='hibernate.connection.password']" --value $DBUSERPW $CFGFILE
 xmlstarlet edit --inplace --update "/confluence-configuration/properties/property[@name='confluence.webapp.context.path']" --value / $CFGFILE

@@ -24,3 +24,8 @@ echo "s|<param-value>/login.action?\S*</param-value>|<param-value>https://$MYCAS
 echo "s|<param-value>/login.action</param-value>|<param-value>https://$MYCAS/cas/login?service=https://$MYIP/dashboard.action</param-value>|g" >> seraph-config.sed
 echo "s|com.atlassian.confluence.user.ConfluenceAuthenticator|org.jasig.cas.client.integration.atlassian.ConfluenceCasAuthenticator|g" >> seraph-config.sed
 sed -f seraph-config.sed seraph-config.xml.tmpl > seraph-config.xml
+
+# if in container
+if [ -d /usr/local/atlassian/confluence/confluence/WEB-INF/classes/ ]; then
+    cp seraph-config.xml /usr/local/atlassian/confluence/confluence/WEB-INF/classes/
+fi

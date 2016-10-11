@@ -24,4 +24,7 @@ echo "s|https://confluence.institution.edu/confluence/|https://$MYIP/|g" >> web.
 
 sed -f web.sed web.xml.tmpl > web.xml
 
-
+# copy web.xml to correct place if inside container
+if [ -d /usr/local/atlassian/confluence/confluence/WEB-INF/ ]; then
+    cp web.xml /usr/local/atlassian/confluence/confluence/WEB-INF/
+fi

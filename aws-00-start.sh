@@ -19,8 +19,8 @@ echo "s|mycas|$MYCAS|g" > env.$DTS.sed
 echo "s|myip|$AWSIP|g" >> env.$DTS.sed
 echo "s|dbip|$DBIP|g" >> env.$DTS.sed
 echo "s|dbname|$DBNAME|g" >> env.$DTS.sed
-echo "s|dbuser|$DBUSER|g" >> env.$DTS.sed
 echo "s|dbuserpw|$DBUSERPW|g" >> env.$DTS.sed
+echo "s|dbuser|$DBUSER|g" >> env.$DTS.sed
 echo "s|conbuild|$CONBUILD|g" >> env.$DTS.sed
 echo "s|conid|$CONID|g" >> env.$DTS.sed
 echo "s|conlic|$CONLIC|g" >> env.$DTS.sed
@@ -81,7 +81,9 @@ rsync -avz -e "ssh -i \"$SSHID\"" /Volumes/64G/wiki-home.tar.gz $AWSUSER@$AWSIP:
 #ssh -i $SSHID -l $AWSUSER $AWSIP ./aws-03a-mysql.sh $DBNAME $DBROOTPW $DBUSER $DBUSERPW
 #ssh -i $SSHID -l $AWSUSER $AWSIP ./aws-03b-confluence.sh $DBNAME $DBUSER $DBUSERPW $CONBUILD $CONID $CONLIC
 # RDS
-ssh -i $SSHID -l $AWSUSER $AWSIP ./aws-03b-confluence.sh $DBNAME $DBUSER $DBUSERPW $CONBUILD $CONID $CONLIC $DBIP
+#ssh -i $SSHID -l $AWSUSER $AWSIP ./aws-03b-confluence.sh $DBNAME $DBUSER $DBUSERPW $CONBUILD $CONID $CONLIC $DBIP
+
+ssh -i $SSHID -l $AWSUSER $AWSIP ./aws-03a-confluence.sh
 
 # accept keys configured for git using keys correctly would be better
 #ssh -i $SSHID -l $AWSUSER $AWSIP ./aws-03b-git.sh

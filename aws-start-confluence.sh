@@ -3,4 +3,4 @@
 ./aws-cas-web.sh
 ./aws-cfg.sh
 
-/usr/local/atlassian/confluence/bin/start-confluence.sh
+/usr/local/atlassian/confluence/bin/start-confluence.sh -fg

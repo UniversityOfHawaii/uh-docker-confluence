@@ -39,24 +39,31 @@ RUN set -x \
         --delete               "Server/Service/Engine/Host/Context/@debug" \
                                "${CONF_INSTALL}/conf/server.xml"
 
-#RUN ./seraph-config.sh
-# linked for testing
-#COPY seraph-config.xml  /usr/local/atlassian/confluence/confluence/WEB-INF/classes/seraph-config.xml
+COPY env.txt ${CONF_INSTALL}/env.txt
 
-# linked for testing
-#COPY java-cas-client/cas-client-core/target/cas-client-core-3.4.2-SNAPSHOT.jar /usr/local/atlassian/confluence/confluence/WEB-INF/lib/
-#COPY java-cas-client/cas-client-integration-atlassian/target/cas-client-integration-atlassian-3.4.2-SNAPSHOT.jar /usr/local/atlassian/confluence/confluence/WEB-INF/lib/  
+COPY seraph-config.xml.tmpl ${CONF_INSTALL}/seraph-config.xml.tmpl
+COPY aws-seraph-config.sh ${CONF_INSTALL}/aws-seraph-config.sh
+#RUN ./aws-seraph-config.sh && mv seraph-config.xml $CONF_INSTALL/confluence/WEB-INF/classes/seraph-config.xml
+
+COPY web.xml.tmpl ${CONF_INSTALL}/web.xml.tmpl
+COPY aws-cas-web.sh ${CONF_INSTALL}/aws-cas-web.sh
+#RUN ./aws-cas-web.sh && mv web.xml $CONF_INSTALL/confluence/WEB-INF/web.xml
+
+COPY aws-cfg.sh ${CONF_INSTALL}/aws-cfg.sh
+#RUN ./aws-cfg.sh
+
+COPY java-cas-client/cas-client-core/target/cas-client-core-3.4.2-SNAPSHOT.jar /usr/local/atlassian/confluence/confluence/WEB-INF/lib/
+COPY java-cas-client/cas-client-integration-atlassian/target/cas-client-integration-atlassian-3.4.2-SNAPSHOT.jar /usr/local/atlassian/confluence/confluence/WEB-INF/lib/  
 
 COPY mysql-connector-java-5.1.39-bin.jar /usr/local/atlassian/confluence/confluence/WEB-INF/lib/mysql-connector-java-5.1.39-bin.jar
 
-# linked for testing
-#COPY web.xml /usr/local/atlassian/confluence/confluence/WEB-INF/web.xml
+COPY aws-start-confluence.sh ${CONF_INSTALL}/aws-start-confluence.sh
 
 # Oracle JDK
 COPY jdk-8u101-linux-x64.tar.gz jdk-8u101-linux-x64.tar.gz
 RUN tar xvfz jdk-8u101-linux-x64.tar.gz && mkdir /usr/lib/jvm && mv jdk1.8.0_101 /usr/lib/jvm/ && rm jdk-8u101-linux-x64.tar.gz
 ENV JAVA_HOME /usr/lib/jvm/jdk1.8.0_101
-ENV PATH "$PATH:$JAVA_HOME/bin"
+ENV PATH "$PATH:$JAVA_HOME/bin:${CONF_INSTALL}"
 
 # SSL
 ADD server.xml /usr/local/atlassian/confluence/conf/server.tmpl
@@ -77,7 +84,6 @@ RUN apt-get install -y dvipng && \
 COPY setenv.sh /usr/local/atlassian/confluence/bin/setenv.sh
 # -Xms6g -Xmx6g 
 
-
 # Use the default unprivileged account. This could be considered bad practice
 # on systems where multiple processes end up being executed by 'daemon' but
 # here we only ever run one process anyway.
@@ -95,5 +101,6 @@ VOLUME ["/var/local/atlassian/confluence", "/usr/local/atlassian/confluence"]
 WORKDIR ${CONF_INSTALL}
 
 # Run Atlassian JIRA as a foreground process by default.
-CMD ["/usr/local/atlassian/confluence/bin/start-confluence.sh", "-fg"]
+#CMD ["/usr/local/atlassian/confluence/bin/start-confluence.sh", "-fg"]
+CMD ["${CONF_INSTALL}/aws-start-confluence.sh", "-fg"]
 
