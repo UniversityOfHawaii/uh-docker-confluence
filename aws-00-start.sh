@@ -1,3 +1,4 @@
+#!/bin/bash
 export AWSIP=$1
 export AWSUSER=ec2-user
 export MYCAS=$2
@@ -57,6 +58,7 @@ else
 fi
 
 scp -i $SSHID Dockerfile $AWSUSER@$AWSIP:
+scp -i $SSHID docker-compose.yml $AWSUSER@$AWSIP:
 
 scp -i $SSHID my.cnf $AWSUSER@$AWSIP:
 scp -i $SSHID testdatabase.jsp $AWSUSER@$AWSIP:

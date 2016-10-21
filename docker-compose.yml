@@ -1,0 +1,18 @@
+confluence:
+  restart: always
+  build: .
+  ports:
+    - "80:8090"
+    - "443:8443"
+  volumes:
+    # map timezone to host
+    - /etc/localtime:/etc/localtime:ro
+    # confluence wiki home logs are in wiki-home/logs
+    - /home/ec2-user/wiki-home:/var/local/atlassian/confluence
+    # tomcat logs
+    - /home/ec2-user/tomcat-logs:/usr/local/atlassian/confluence/logs
+# links for ease of use in development/testing
+#    - /home/ec2-user/java-cas-client/cas-client-core/target/cas-client-core-3.4.2-SNAPSHOT.jar:/usr/local/atlassian/confluence/confluence/WEB-INF/lib/cas-client-core-3.4.2-SNAPSHOT.jar
+#    - /home/ec2-user/java-cas-client/cas-client-integration-atlassian/target/cas-client-integration-atlassian-3.4.2-SNAPSHOT.jar:/usr/local/atlassian/confluence/confluence/WEB-INF/lib/cas-client-integration-atlassian-3.4.2-SNAPSHOT.jar
+#    - /home/ec2-user/web.xml:/usr/local/atlassian/confluence/confluence/WEB-INF/web.xml
+#    - /home/ec2-user/seraph-config.xml:/usr/local/atlassian/confluence/confluence/WEB-INF/classes/seraph-config.xml

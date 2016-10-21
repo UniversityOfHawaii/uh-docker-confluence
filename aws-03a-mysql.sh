@@ -1,3 +1,4 @@
+#!/bin/bash
 cd
 
 if [ ! -f initialize.sql ]; then

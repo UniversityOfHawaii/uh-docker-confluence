@@ -1,3 +1,4 @@
+#!/bin/bash
 #sudo yum install -y svn
 #sudo yum install -y ant
 sudo yum install -y git

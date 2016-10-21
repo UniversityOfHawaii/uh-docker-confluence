@@ -1,3 +1,4 @@
+#!/bin/bash
 echo "running ssh-keygen to setup ~/.ssh"
 # Overwrite if prompted
 echo -e 'y\n'|ssh-keygen -t rsa -b 4096 -q -N "" -f ~/.ssh/my_id_rsa

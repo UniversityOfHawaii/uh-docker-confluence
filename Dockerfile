@@ -41,6 +41,8 @@ RUN set -x \
 
 COPY env.txt ${CONF_INSTALL}/env.txt
 
+COPY aws-serverxml-keystore.sh ${CONF_INSTALL}/aws-serverxml-keystore.sh
+
 COPY seraph-config.xml.tmpl ${CONF_INSTALL}/seraph-config.xml.tmpl
 COPY aws-seraph-config.sh ${CONF_INSTALL}/aws-seraph-config.sh
 #RUN ./aws-seraph-config.sh && mv seraph-config.xml $CONF_INSTALL/confluence/WEB-INF/classes/seraph-config.xml
@@ -52,10 +54,10 @@ COPY aws-cas-web.sh ${CONF_INSTALL}/aws-cas-web.sh
 COPY aws-cfg.sh ${CONF_INSTALL}/aws-cfg.sh
 #RUN ./aws-cfg.sh
 
-COPY java-cas-client/cas-client-core/target/cas-client-core-3.4.2-SNAPSHOT.jar /usr/local/atlassian/confluence/confluence/WEB-INF/lib/
-COPY java-cas-client/cas-client-integration-atlassian/target/cas-client-integration-atlassian-3.4.2-SNAPSHOT.jar /usr/local/atlassian/confluence/confluence/WEB-INF/lib/  
+COPY java-cas-client/cas-client-core/target/cas-client-core-3.4.2-SNAPSHOT.jar ${CONF_INSTALL}/confluence/WEB-INF/lib/
+COPY java-cas-client/cas-client-integration-atlassian/target/cas-client-integration-atlassian-3.4.2-SNAPSHOT.jar ${CONF_INSTALL}/confluence/WEB-INF/lib/  
 
-COPY mysql-connector-java-5.1.39-bin.jar /usr/local/atlassian/confluence/confluence/WEB-INF/lib/mysql-connector-java-5.1.39-bin.jar
+COPY mysql-connector-java-5.1.39-bin.jar ${CONF_INSTALL}/confluence/WEB-INF/lib/mysql-connector-java-5.1.39-bin.jar
 
 COPY aws-start-confluence.sh ${CONF_INSTALL}/aws-start-confluence.sh
 
@@ -66,10 +68,11 @@ ENV JAVA_HOME /usr/lib/jvm/jdk1.8.0_101
 ENV PATH "$PATH:$JAVA_HOME/bin:${CONF_INSTALL}"
 
 # SSL
-ADD server.xml /usr/local/atlassian/confluence/conf/server.tmpl
+ADD server.xml ${CONF_INSTALL}/conf/server.tmpl
 # use sed to replace PASSPHRASE in server.tmpl with a randomly generated password then grep the password out when creating the keystore
 # keystore depends on java
-RUN sed "s|PASSPHRASE|$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;)|" /usr/local/atlassian/confluence/conf/server.tmpl > /usr/local/atlassian/confluence/conf/server.xml && $JAVA_HOME/bin/keytool -genkey -dname "cn=Author Name, ou=Container, o=UH, l=Honolulu, st=HI, c=US" -alias tomcat -keyalg RSA -storepass $(grep keystorePass /usr/local/atlassian/confluence/conf/server.xml | cut -d\" -f 2)
+#RUN sed "s|PASSPHRASE|$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;)|" ${CONF_INSTALL}/conf/server.tmpl > ${CONF_INSTALL}/conf/server.xml && $JAVA_HOME/bin/keytool -genkey -dname "cn=Author Name, ou=Container, o=UH, l=Honolulu, st=HI, c=US" -alias tomcat -keyalg RSA -storepass $(grep keystorePass ${CONF_INSTALL}/conf/server.xml | cut -d\" -f 2)
+RUN sed "s|PASSPHRASE|$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;)|" ${CONF_INSTALL}/conf/server.tmpl > ${CONF_INSTALL}/conf/server.xml && ${CONF_INSTALL}/aws-serverxml-keystore.sh ${CONF_INSTALL}/conf
 
 #latex
 RUN apt-get install -y dvipng && \
@@ -81,7 +84,7 @@ RUN apt-get install -y dvipng && \
   apt-get install -y mimetex
 
 #JVM tuning
-COPY setenv.sh /usr/local/atlassian/confluence/bin/setenv.sh
+COPY setenv.sh ${CONF_INSTALL}/bin/setenv.sh
 # -Xms6g -Xmx6g 
 
 # Use the default unprivileged account. This could be considered bad practice
@@ -102,5 +105,5 @@ WORKDIR ${CONF_INSTALL}
 
 # Run Atlassian JIRA as a foreground process by default.
 #CMD ["/usr/local/atlassian/confluence/bin/start-confluence.sh", "-fg"]
-CMD ["${CONF_INSTALL}/aws-start-confluence.sh", "-fg"]
+CMD ["/usr/local/atlassian/confluence/aws-start-confluence.sh", "-fg"]
 

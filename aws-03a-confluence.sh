@@ -16,4 +16,5 @@ rm -rf wiki-home/journal
 
 mkdir -p tomcat-logs
 
-docker build .
+#docker build .
+./docker-compose build
