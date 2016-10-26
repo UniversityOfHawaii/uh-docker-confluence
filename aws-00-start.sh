@@ -9,6 +9,9 @@ export DBUSERPW=$6
 export CONBUILD=$7
 export CONID=$8
 export CONLIC=$9
+# KS vars not required
+export KSPP=${10}
+export KSPW=${11}
 
 if [ -z "$9" ]; then
     echo "Required arguements not set, read this script."
@@ -25,6 +28,8 @@ echo "s|dbuser|$DBUSER|g" >> env.$DTS.sed
 echo "s|conbuild|$CONBUILD|g" >> env.$DTS.sed
 echo "s|conid|$CONID|g" >> env.$DTS.sed
 echo "s|conlic|$CONLIC|g" >> env.$DTS.sed
+echo "s|kspp|$KSPP|g" >> env.$DTS.sed
+echo "s|kspw|$KSPW|g" >> env.$DTS.sed
 sed -f env.$DTS.sed env.tmpl > ~/confluence-env.$DTS.txt
 rm env.$DTS.sed
 
@@ -87,7 +92,7 @@ rsync -avz -e "ssh -i \"$SSHID\"" /Volumes/64G/wiki-home.tar.gz $AWSUSER@$AWSIP:
 
 ssh -i $SSHID -l $AWSUSER $AWSIP ./aws-03a-confluence.sh
 
-# accept keys configured for git using keys correctly would be better
+#accept keys configured for git using keys correctly would be better
 #ssh -i $SSHID -l $AWSUSER $AWSIP ./aws-03b-git.sh
 
 ssh -i $SSHID -l $AWSUSER $AWSIP

@@ -14,6 +14,9 @@ RUN set -x \
     && apt-get update --quiet \
     && apt-get install --quiet --yes --no-install-recommends libtcnative-1 xmlstarlet \
     && apt-get clean \
+# Timezone
+    && rm /etc/localtime \
+    && ln -sf /usr/share/zoneinfo/Pacific/Honolulu /etc/localtime \
     && mkdir -p                "${CONF_HOME}" \
 #    && chmod -R 700            "${CONF_HOME}" \
 #    && chown daemon:daemon     "${CONF_HOME}" \
@@ -41,6 +44,7 @@ RUN set -x \
 
 COPY env.txt ${CONF_INSTALL}/env.txt
 
+COPY aws-serverxml-passphrase.sh ${CONF_INSTALL}/aws-serverxml-passphrase.sh
 COPY aws-serverxml-keystore.sh ${CONF_INSTALL}/aws-serverxml-keystore.sh
 
 COPY seraph-config.xml.tmpl ${CONF_INSTALL}/seraph-config.xml.tmpl
@@ -72,7 +76,7 @@ ADD server.xml ${CONF_INSTALL}/conf/server.tmpl
 # use sed to replace PASSPHRASE in server.tmpl with a randomly generated password then grep the password out when creating the keystore
 # keystore depends on java
 #RUN sed "s|PASSPHRASE|$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;)|" ${CONF_INSTALL}/conf/server.tmpl > ${CONF_INSTALL}/conf/server.xml && $JAVA_HOME/bin/keytool -genkey -dname "cn=Author Name, ou=Container, o=UH, l=Honolulu, st=HI, c=US" -alias tomcat -keyalg RSA -storepass $(grep keystorePass ${CONF_INSTALL}/conf/server.xml | cut -d\" -f 2)
-RUN sed "s|PASSPHRASE|$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;)|" ${CONF_INSTALL}/conf/server.tmpl > ${CONF_INSTALL}/conf/server.xml && ${CONF_INSTALL}/aws-serverxml-keystore.sh ${CONF_INSTALL}/conf
+RUN ${CONF_INSTALL}/aws-serverxml-passphrase.sh ${CONF_INSTALL}/conf && ${CONF_INSTALL}/aws-serverxml-keystore.sh ${CONF_INSTALL}/conf
 
 #latex
 RUN apt-get install -y dvipng && \
